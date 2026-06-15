@@ -1,8 +1,0 @@
-{
-  "lib/forge-std": {
-    "rev": "e4aef94c1768803a16fe19f7ce8b65defd027cfd"
-  },
-  "lib/openzeppelin": {
-    "rev": "74edc4baff50b93c06977021ee9ba25987803291"
-  }
-}
