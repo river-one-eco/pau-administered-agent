@@ -46,6 +46,9 @@ library AdministeredAgentInit {
 
     /**
      * @notice Configures an AdministeredAgent's roles in bulk.
+     * @dev    This function is NOT idempotent. The agent's add* functions reject duplicates, so
+     *         re-running init (or passing an address already holding a role) reverts. Unlike
+     *         PAUInit.init in diamond-pau, it cannot be safely applied twice.
      * @param  agent The agent to configure.
      * @param  p     Role configuration.
      */
