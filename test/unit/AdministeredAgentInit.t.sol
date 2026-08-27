@@ -99,6 +99,15 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         governance.init(address(otherAgent), _empty());
     }
 
+    function test_init_notSoleAdmin_reverts() external {
+        // Governance is admin, but a second admin exists: it is not the sole admin.
+        vm.prank(address(governance));
+        agent.addAdmin(makeAddr("secondAdmin"));
+
+        vm.expectRevert(bytes("AdministeredAgentInit/not-sole-admin"));
+        governance.init(address(agent), _empty());
+    }
+
     function test_init_zeroAdmin_reverts() external {
         AdministeredAgentInitParams memory p = _empty();
         p.admins = _one(address(0));

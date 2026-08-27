@@ -11,6 +11,8 @@ interface IAdministeredAgentLike {
 
     function addRevoker(address account) external;
 
+    function adminCount() external view returns (uint256);
+
     function getIsAdmin(address account) external view returns (bool);
 
 }
@@ -52,8 +54,9 @@ library AdministeredAgentInit {
 
         IAdministeredAgentLike agent_ = IAdministeredAgentLike(agent);
 
-        // Sanity check: the executing context must be an admin on the agent.
+        // Sanity check: the executing context must be the agent's sole admin.
         require(agent_.getIsAdmin(address(this)), "AdministeredAgentInit/not-admin");
+        require(agent_.adminCount() == 1,         "AdministeredAgentInit/not-sole-admin");
 
         for (uint256 i = 0; i < p.admins.length; ++i) {
             require(p.admins[i] != address(0), "AdministeredAgentInit/admin-zero-address");
