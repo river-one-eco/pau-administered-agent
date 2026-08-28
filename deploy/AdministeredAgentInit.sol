@@ -62,22 +62,18 @@ library AdministeredAgentInit {
         require(agent_.adminCount() == 1,         "AdministeredAgentInit/not-sole-admin");
 
         for (uint256 i = 0; i < p.admins.length; ++i) {
-            require(p.admins[i] != address(0), "AdministeredAgentInit/admin-zero-address");
             agent_.addAdmin(p.admins[i]);
         }
 
         for (uint256 i = 0; i < p.actors.length; ++i) {
-            require(p.actors[i] != address(0), "AdministeredAgentInit/actor-zero-address");
             agent_.addActor(p.actors[i]);
         }
 
         for (uint256 i = 0; i < p.grantors.length; ++i) {
-            require(p.grantors[i] != address(0), "AdministeredAgentInit/grantor-zero-address");
             agent_.addGrantor(p.grantors[i]);
         }
 
         for (uint256 i = 0; i < p.revokers.length; ++i) {
-            require(p.revokers[i] != address(0), "AdministeredAgentInit/revoker-zero-address");
             agent_.addRevoker(p.revokers[i]);
         }
     }

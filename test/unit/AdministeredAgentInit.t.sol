@@ -3,7 +3,8 @@ pragma solidity ^0.8.34;
 
 import { Test } from "../../lib/forge-std/src/Test.sol";
 
-import { AdministeredAgent } from "../../src/AdministeredAgent.sol";
+import { AdministeredAgent }   from "../../src/AdministeredAgent.sol";
+import { IAdministeredAgent }  from "../../src/interfaces/IAdministeredAgent.sol";
 
 import {
     AdministeredAgentInit,
@@ -112,7 +113,7 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         AdministeredAgentInitParams memory p = _empty();
         p.admins = _one(address(0));
 
-        vm.expectRevert(bytes("AdministeredAgentInit/admin-zero-address"));
+        vm.expectRevert(IAdministeredAgent.ZeroAccount.selector);
         governance.init(address(agent), p);
     }
 
@@ -120,7 +121,7 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         AdministeredAgentInitParams memory p = _empty();
         p.actors = _one(address(0));
 
-        vm.expectRevert(bytes("AdministeredAgentInit/actor-zero-address"));
+        vm.expectRevert(IAdministeredAgent.ZeroAccount.selector);
         governance.init(address(agent), p);
     }
 
@@ -128,7 +129,7 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         AdministeredAgentInitParams memory p = _empty();
         p.grantors = _one(address(0));
 
-        vm.expectRevert(bytes("AdministeredAgentInit/grantor-zero-address"));
+        vm.expectRevert(IAdministeredAgent.ZeroAccount.selector);
         governance.init(address(agent), p);
     }
 
@@ -136,7 +137,7 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         AdministeredAgentInitParams memory p = _empty();
         p.revokers = _one(address(0));
 
-        vm.expectRevert(bytes("AdministeredAgentInit/revoker-zero-address"));
+        vm.expectRevert(IAdministeredAgent.ZeroAccount.selector);
         governance.init(address(agent), p);
     }
 
