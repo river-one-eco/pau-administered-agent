@@ -109,6 +109,33 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         governance.init(address(agent), _empty());
     }
 
+    function test_init_secondInitWithNewAdmin_reverts() external {
+        // A successful init that adds an admin leaves the agent with two admins, so re-running init
+        // trips the sole-admin guard. init is documented as NOT idempotent.
+        AdministeredAgentInitParams memory p = _empty();
+        p.admins   = _one(admin);
+        p.actors   = _one(actor);
+        p.grantors = _one(grantor);
+        p.revokers = _one(revoker);
+
+        governance.init(address(agent), p);
+
+        vm.expectRevert(bytes("AdministeredAgentInit/not-sole-admin"));
+        governance.init(address(agent), p);
+    }
+
+    function test_init_secondInitDuplicateRole_reverts() external {
+        // With no new admin the sole-admin guard still passes on the second run, but the agent's
+        // add* functions reject the already-configured role, so re-running init still reverts.
+        AdministeredAgentInitParams memory p = _empty();
+        p.actors = _one(actor);
+
+        governance.init(address(agent), p);
+
+        vm.expectRevert(IAdministeredAgent.AccountAlreadyActor.selector);
+        governance.init(address(agent), p);
+    }
+
     function test_init_zeroAdmin_reverts() external {
         AdministeredAgentInitParams memory p = _empty();
         p.admins = _one(address(0));
