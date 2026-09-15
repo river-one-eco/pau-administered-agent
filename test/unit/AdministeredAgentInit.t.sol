@@ -56,6 +56,12 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         arr[0] = a;
     }
 
+    function _two(address a, address b) internal pure returns (address[] memory arr) {
+        arr    = new address[](2);
+        arr[0] = a;
+        arr[1] = b;
+    }
+
     /**********************************************************************************************/
     /*** Tests                                                                                  ***/
     /**********************************************************************************************/
@@ -177,6 +183,39 @@ contract AdministeredAgentInit_Unit_Tests is Test {
 
         vm.expectRevert(bytes("AdministeredAgentInit/actors-not-empty"));
         governance.init(address(agent), _empty());
+    }
+
+    function test_init_duplicateAdminInParams_reverts() external {
+        // Duplicates within a single params list are rejected by the agent's add* functions.
+        AdministeredAgentInitParams memory p = _empty();
+        p.admins = _two(admin, admin);
+
+        vm.expectRevert(IAdministeredAgent.AccountAlreadyAdmin.selector);
+        governance.init(address(agent), p);
+    }
+
+    function test_init_duplicateActorInParams_reverts() external {
+        AdministeredAgentInitParams memory p = _empty();
+        p.actors = _two(actor, actor);
+
+        vm.expectRevert(IAdministeredAgent.AccountAlreadyActor.selector);
+        governance.init(address(agent), p);
+    }
+
+    function test_init_duplicateGrantorInParams_reverts() external {
+        AdministeredAgentInitParams memory p = _empty();
+        p.grantors = _two(grantor, grantor);
+
+        vm.expectRevert(IAdministeredAgent.AccountAlreadyGrantor.selector);
+        governance.init(address(agent), p);
+    }
+
+    function test_init_duplicateRevokerInParams_reverts() external {
+        AdministeredAgentInitParams memory p = _empty();
+        p.revokers = _two(revoker, revoker);
+
+        vm.expectRevert(IAdministeredAgent.AccountAlreadyRevoker.selector);
+        governance.init(address(agent), p);
     }
 
     function test_init_zeroAdmin_reverts() external {
