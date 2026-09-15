@@ -124,16 +124,59 @@ contract AdministeredAgentInit_Unit_Tests is Test {
         governance.init(address(agent), p);
     }
 
-    function test_init_secondInitDuplicateRole_reverts() external {
-        // With no new admin the sole-admin guard still passes on the second run, but the agent's
-        // add* functions reject the already-configured role, so re-running init still reverts.
+    function test_init_secondInitSameRoles_reverts() external {
+        // With no new admin the sole-admin guard still passes on the second run, but the role sets
+        // configured by the first run are no longer empty, so re-running init still reverts.
         AdministeredAgentInitParams memory p = _empty();
         p.actors = _one(actor);
 
         governance.init(address(agent), p);
 
-        vm.expectRevert(IAdministeredAgent.AccountAlreadyActor.selector);
+        vm.expectRevert(bytes("AdministeredAgentInit/actors-not-empty"));
         governance.init(address(agent), p);
+    }
+
+    function test_init_actorsNotEmpty_reverts() external {
+        // An actor configured before init means init would extend the set rather than establish it.
+        vm.prank(address(governance));
+        agent.addActor(makeAddr("preExistingActor"));
+
+        vm.expectRevert(bytes("AdministeredAgentInit/actors-not-empty"));
+        governance.init(address(agent), _empty());
+    }
+
+    function test_init_grantorsNotEmpty_reverts() external {
+        vm.prank(address(governance));
+        agent.addGrantor(makeAddr("preExistingGrantor"));
+
+        vm.expectRevert(bytes("AdministeredAgentInit/grantors-not-empty"));
+        governance.init(address(agent), _empty());
+    }
+
+    function test_init_revokersNotEmpty_reverts() external {
+        vm.prank(address(governance));
+        agent.addRevoker(makeAddr("preExistingRevoker"));
+
+        vm.expectRevert(bytes("AdministeredAgentInit/revokers-not-empty"));
+        governance.init(address(agent), _empty());
+    }
+
+    function test_init_actorAddedByGrantorBeforeInit_reverts() external {
+        // The pre-existing actor need not come from the admin: a grantor configured out of band can
+        // add actors too, and the count check catches that path as well.
+        address preExistingGrantor = makeAddr("preExistingGrantor");
+
+        vm.prank(address(governance));
+        agent.addGrantor(preExistingGrantor);
+
+        vm.prank(preExistingGrantor);
+        agent.addActor(makeAddr("preExistingActor"));
+
+        vm.prank(address(governance));
+        agent.removeGrantor(preExistingGrantor);
+
+        vm.expectRevert(bytes("AdministeredAgentInit/actors-not-empty"));
+        governance.init(address(agent), _empty());
     }
 
     function test_init_zeroAdmin_reverts() external {
